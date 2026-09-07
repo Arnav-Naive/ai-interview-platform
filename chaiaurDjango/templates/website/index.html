@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Mock Interview - Smart Preparation{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container hero-grid">
+        <div class="hero-content animate-up">
+            <h1>Master Your Next Interview with <span style="background: linear-gradient(135deg, var(--primary), var(--secondary)); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">AI</span></h1>
+            <p>Elevate your career with intelligent resume analysis, mock interviews, and performance tracking powered by our smart evaluation engine.</p>
+            <div class="hero-btns">
+                {% if user.is_authenticated %}
+                <a href="{% url 'upload' %}" class="btn btn-primary">Start Session <i class="fas fa-rocket"></i></a>
+                <a href="{% url 'dashboard' %}" class="btn btn-outline" style="margin-left: 1rem;">Dashboard</a>
+                {% else %}
+                <a href="{% url 'register' %}" class="btn btn-primary">Start Free Session <i class="fas fa-rocket"></i></a>
+                <a href="{% url 'about' %}" class="btn btn-outline" style="margin-left: 1rem;">Learn More</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="hero-image animate-up delay-1">
+            <div class="card" style="padding: 1.5rem; text-align: left;">
+                <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 2rem;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-user-tie" style="color: white; font-size: 1.5rem;"></i>
+                    </div>
+                    <div>
+                        <h4 style="margin: 0;">AI Examiner</h4>
+                        <p style="margin: 0; font-size: 0.8rem;">Ready for your session</p>
+                    </div>
+                </div>
+                <div style="background: rgba(0,0,0,0.2); height: 120px; border-radius: 8px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; border: 1px dashed var(--glass-border);">
+                    <i class="fas fa-microphone" style="font-size: 2rem; color: var(--secondary); opacity: 0.6;"></i>
+                </div>
+                {% if user.is_authenticated %}
+                <a href="{% url 'upload' %}" class="btn btn-primary" style="width: 100%; font-size: 0.8rem; height: 40px;">Start Interview</a>
+                {% else %}
+                <a href="{% url 'register' %}" class="btn btn-primary" style="width: 100%; font-size: 0.8rem; height: 40px;">Join Interview</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <h2 style="text-align: center; margin-bottom: 1rem;" class="animate-up">How It Works</h2>
+        <p style="text-align: center; max-width: 600px; margin: 0 auto 4rem;" class="animate-up">Complete your interview preparation in 4 simple steps</p>
+
+        <div class="dashboard-grid">
+            <div class="card animate-up delay-1">
+                <div style="width: 50px; height: 50px; border-radius: 12px; background: var(--primary-glow); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                    <i class="fas fa-file-upload" style="color: var(--primary);"></i>
+                </div>
+                <h3>1. Upload Resume</h3>
+                <p>Upload your resume and get an instant AI-powered skill analysis with a score out of 100.</p>
+            </div>
+            <div class="card animate-up delay-2">
+                <div style="width: 50px; height: 50px; border-radius: 12px; background: hsla(190, 85%, 55%, 0.15); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                    <i class="fas fa-briefcase" style="color: var(--secondary);"></i>
+                </div>
+                <h3>2. Select Role</h3>
+                <p>Choose your target job role — Python Developer, Web Developer, Data Analyst, and more.</p>
+            </div>
+            <div class="card animate-up delay-2">
+                <div style="width: 50px; height: 50px; border-radius: 12px; background: hsla(320, 80%, 60%, 0.15); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                    <i class="fas fa-comments" style="color: var(--accent);"></i>
+                </div>
+                <h3>3. Answer Questions</h3>
+                <p>Face 5 domain-specific interview questions and submit your best answers.</p>
+            </div>
+            <div class="card animate-up delay-3">
+                <div style="width: 50px; height: 50px; border-radius: 12px; background: hsla(140, 70%, 45%, 0.15); display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                    <i class="fas fa-chart-bar" style="color: #4ade80;"></i>
+                </div>
+                <h3>4. Get Report</h3>
+                <p>Receive a detailed performance report with scores, strengths, and improvement suggestions.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

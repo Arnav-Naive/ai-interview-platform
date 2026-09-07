@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}Result - AI Mock Interview{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container" style="max-width: 900px;">
+        <div class="animate-up" style="text-align: center; margin-bottom: 3rem;">
+            <h1>Performance <span style="color: var(--primary);">Report</span></h1>
+            <p>Here's your complete evaluation for this session.</p>
+        </div>
+
+        <!-- Score Overview -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 3rem;">
+            <div class="card animate-up delay-1" style="text-align: center;">
+                <p style="margin: 0 0 0.5rem; font-size: 0.85rem; color: var(--text-secondary);">Resume Score</p>
+                <h2 style="font-size: 2.2rem; margin: 0; color: {% if result.resume_score >= 70 %}#4ade80{% elif result.resume_score >= 40 %}#fbbf24{% else %}#f87171{% endif %};">{{ result.resume_score }}<span style="font-size: 1rem; color: var(--text-secondary);">/100</span></h2>
+            </div>
+            <div class="card animate-up delay-2" style="text-align: center;">
+                <p style="margin: 0 0 0.5rem; font-size: 0.85rem; color: var(--text-secondary);">Interview Score</p>
+                <h2 style="font-size: 2.2rem; margin: 0; color: {% if result.interview_score >= 35 %}#4ade80{% elif result.interview_score >= 20 %}#fbbf24{% else %}#f87171{% endif %};">{{ result.interview_score }}<span style="font-size: 1rem; color: var(--text-secondary);">/50</span></h2>
+            </div>
+            <div class="card animate-up delay-3" style="text-align: center; border-color: var(--primary);">
+                <p style="margin: 0 0 0.5rem; font-size: 0.85rem; color: var(--text-secondary);">Total Score</p>
+                <h2 style="font-size: 2.2rem; margin: 0; color: var(--primary);">{{ result.total_score }}<span style="font-size: 1rem; color: var(--text-secondary);">/150</span></h2>
+            </div>
+        </div>
+
+        <!-- Overall Progress Bar -->
+        <div class="card animate-up" style="margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="font-weight: 600;">Overall Performance</span>
+                <span style="color: var(--primary); font-weight: 600;">{{ score_percent }}%</span>
+            </div>
+            <div style="height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden;">
+                <div style="height: 100%; width: {{ score_percent }}%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 6px; transition: width 1s ease;"></div>
+            </div>
+        </div>
+
+        <!-- Q&A Breakdown -->
+        {% if qa_pairs %}
+        <div class="animate-up" style="margin-bottom: 2rem;">
+            <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-clipboard-list" style="color: var(--secondary); margin-right: 0.5rem;"></i>Question-by-Question Breakdown</h3>
+            {% for qa in qa_pairs %}
+            <div class="card" style="margin-bottom: 1rem; padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h4 style="margin: 0; font-size: 0.95rem;">Q{{ qa.number }}: {{ qa.question }}</h4>
+                    <span style="background: {% if qa.score >= 7 %}hsla(140,70%,45%,0.15){% elif qa.score >= 4 %}hsla(40,90%,55%,0.15){% else %}hsla(0,70%,55%,0.15){% endif %}; color: {% if qa.score >= 7 %}#4ade80{% elif qa.score >= 4 %}#fbbf24{% else %}#f87171{% endif %}; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; white-space: nowrap;">{{ qa.score }}/10</span>
+                </div>
+                <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; margin-bottom: 0.8rem;">
+                    <p style="margin: 0; font-size: 0.9rem; color: var(--text-primary);">{{ qa.answer|default:"No answer provided" }}</p>
+                </div>
+                <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);"><i class="fas fa-comment-dots" style="margin-right: 0.3rem;"></i> {{ qa.feedback }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Strengths & Weaknesses -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+            <div class="card animate-up">
+                <h3 style="margin-bottom: 1rem;"><i class="fas fa-thumbs-up" style="color: #4ade80; margin-right: 0.5rem;"></i>Strengths</h3>
+                {% for s in strengths %}
+                <p style="margin: 0 0 0.5rem; font-size: 0.9rem; color: #4ade80;">✓ {{ s }}</p>
+                {% empty %}
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">Complete more sessions to identify strengths.</p>
+                {% endfor %}
+            </div>
+            <div class="card animate-up">
+                <h3 style="margin-bottom: 1rem;"><i class="fas fa-exclamation-circle" style="color: #fbbf24; margin-right: 0.5rem;"></i>Areas to Improve</h3>
+                {% for w in weaknesses %}
+                <p style="margin: 0 0 0.5rem; font-size: 0.9rem; color: #fbbf24;">⚠ {{ w }}</p>
+                {% empty %}
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">Great job! No major weaknesses identified.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Suggestions -->
+        <div class="card animate-up" style="margin-bottom: 3rem;">
+            <h3 style="margin-bottom: 1rem;"><i class="fas fa-lightbulb" style="color: var(--primary); margin-right: 0.5rem;"></i>Recommendations</h3>
+            {% for s in suggestions %}
+            <div style="padding: 0.8rem 1rem; border-left: 3px solid var(--primary); margin-bottom: 0.8rem; background: rgba(255,255,255,0.02); border-radius: 0 8px 8px 0;">
+                <p style="margin: 0; font-size: 0.9rem;">{{ s }}</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Actions -->
+        <div style="text-align: center;" class="animate-up">
+            <a href="{% url 'role' %}" class="btn btn-primary">Try Another Role <i class="fas fa-redo"></i></a>
+            <a href="{% url 'progress' %}" class="btn btn-outline" style="margin-left: 1rem;">View Progress</a>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline" style="margin-left: 1rem;">Dashboard</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

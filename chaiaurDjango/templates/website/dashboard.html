@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - AI Mock Interview{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; flex-wrap: wrap; gap: 1rem;" class="animate-up">
+            <div>
+                <h1 style="margin: 0;">Welcome back, <span style="color: var(--primary);">{{ user.username }}</span></h1>
+                <p style="margin-top: 0.5rem;">Ready to sharpen your skills today?</p>
+            </div>
+            <a href="{% url 'role' %}" class="btn btn-primary">
+                <i class="fas fa-user-tie"></i> New Session
+            </a>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card animate-up delay-1">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <p style="margin: 0; font-size: 0.9rem;">Resumes Analyzed</p>
+                        <h2 style="font-size: 2.5rem; margin: 0.5rem 0;">{{ resume_count }}</h2>
+                    </div>
+                    <div style="background: var(--primary-glow); padding: 1rem; border-radius: 12px;">
+                        <i class="fas fa-file-alt" style="color: var(--primary);"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card animate-up delay-2">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <p style="margin: 0; font-size: 0.9rem;">Interviews Taken</p>
+                        <h2 style="font-size: 2.5rem; margin: 0.5rem 0;">{{ interview_count }}</h2>
+                    </div>
+                    <div style="background: hsla(190, 85%, 55%, 0.1); padding: 1rem; border-radius: 12px;">
+                        <i class="fas fa-comments" style="color: var(--secondary);"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card animate-up delay-3">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <p style="margin: 0; font-size: 0.9rem;">Average Score</p>
+                        <h2 style="font-size: 2.5rem; margin: 0.5rem 0;">{{ avg_score }}</h2>
+                    </div>
+                    <div style="background: hsla(140, 70%, 45%, 0.1); padding: 1rem; border-radius: 12px;">
+                        <i class="fas fa-trophy" style="color: #4ade80;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if latest_resume %}
+        <div style="margin-top: 3rem;" class="animate-up">
+            <h3>Latest Resume</h3>
+            <div class="card" style="margin-top: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <p style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">Score</p>
+                        <h2 style="margin: 0.3rem 0; color: {% if latest_resume.resume_score >= 70 %}#4ade80{% elif latest_resume.resume_score >= 40 %}#fbbf24{% else %}#f87171{% endif %};">{{ latest_resume.resume_score }}/100</h2>
+                    </div>
+                    <a href="{% url 'analysis' %}" class="btn btn-outline">View Analysis</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if recent_results %}
+        <div style="margin-top: 3rem;" class="animate-up">
+            <h3>Recent Sessions</h3>
+            <div class="card" style="margin-top: 1rem; padding: 0; overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; min-width: 500px;">
+                    <thead>
+                        <tr style="text-align: left; border-bottom: 1px solid var(--glass-border);">
+                            <th style="padding: 1.2rem;">Date</th>
+                            <th style="padding: 1.2rem;">Role</th>
+                            <th style="padding: 1.2rem;">Resume</th>
+                            <th style="padding: 1.2rem;">Interview</th>
+                            <th style="padding: 1.2rem;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in recent_results %}
+                        <tr style="border-bottom: 1px solid var(--glass-border);">
+                            <td style="padding: 1.2rem; color: var(--text-secondary);">{{ r.created_at|date:"M d, Y" }}</td>
+                            <td style="padding: 1.2rem;">{% if r.interview %}{{ r.interview.job_role }}{% else %}—{% endif %}</td>
+                            <td style="padding: 1.2rem;"><span style="color: {% if r.resume_score >= 70 %}#4ade80{% elif r.resume_score >= 40 %}#fbbf24{% else %}#f87171{% endif %};">{{ r.resume_score }}/100</span></td>
+                            <td style="padding: 1.2rem;"><span style="color: {% if r.interview_score >= 35 %}#4ade80{% elif r.interview_score >= 20 %}#fbbf24{% else %}#f87171{% endif %};">{{ r.interview_score }}/50</span></td>
+                            <td style="padding: 1.2rem; font-weight: 600;">{{ r.total_score }}/150</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if not recent_results and not latest_resume %}
+        <div class="card" style="text-align: center; padding: 4rem 2rem; margin-top: 3rem;">
+            <i class="fas fa-rocket" style="font-size: 3rem; color: var(--primary); margin-bottom: 1.5rem;"></i>
+            <h3>Start Your Journey</h3>
+            <p>Upload your resume to begin your AI-powered interview preparation.</p>
+            <a href="{% url 'upload' %}" class="btn btn-primary" style="margin-top: 1rem;">Upload Resume <i class="fas fa-arrow-right"></i></a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

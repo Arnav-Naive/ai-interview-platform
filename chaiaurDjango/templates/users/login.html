@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - AI Mock Interview System{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="card form-card animate-up">
+            <h2 style="text-align: center; margin-bottom: 2rem;">Welcome <span class="accent">Back</span></h2>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" name="username" class="form-control" placeholder="Enter your username" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label>Password</label>
+                    <input type="password" name="password" class="form-control" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 1.5rem;"> Login <i class="fas fa-sign-in-alt"></i></button>
+                <p style="text-align: center; font-size: 0.9rem;">
+                    Don't have an account? <a href="{% url 'register' %}">Register here</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

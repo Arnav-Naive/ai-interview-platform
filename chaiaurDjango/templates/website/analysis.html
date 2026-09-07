@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}Resume Analysis - AI Mock Interview{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container" style="max-width: 900px;">
+        <div class="animate-up" style="text-align: center; margin-bottom: 3rem;">
+            <h1>Resume <span style="color: var(--primary);">Analysis</span></h1>
+            <p>Role-specific resume matching results (rule-based logic) for <strong>{{ role }}</strong>.</p>
+            <p style="color: var(--secondary); margin-top: 0.5rem;">Next: Interview questions for {{ role }} are up after this analysis.</p>
+        </div>
+
+        <!-- Score Gauge -->
+        <div class="card animate-up" style="text-align: center; padding: 3rem;">
+            <h3 style="margin-bottom: 1.5rem;">Your Resume Score</h3>
+            <div style="position: relative; width: 150px; height: 150px; margin: 0 auto 1.5rem;">
+                <svg viewBox="0 0 36 36" style="transform: rotate(-90deg);">
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none"
+                        stroke="{% if score >= 70 %}#4ade80{% elif score >= 40 %}#fbbf24{% else %}#f87171{% endif %}"
+                        stroke-width="3" stroke-dasharray="{{ score }}, 100" stroke-linecap="round"/>
+                </svg>
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                    <span style="font-size: 2.5rem; font-weight: 800; color: {% if score >= 70 %}#4ade80{% elif score >= 40 %}#fbbf24{% else %}#f87171{% endif %};">{{ score }}</span>
+                    <span style="font-size: 1rem; color: var(--text-secondary);">/100</span>
+                </div>
+            </div>
+            <p style="color: var(--text-secondary);">
+                {% if score >= 70 %}Excellent! Your resume is well-crafted.{% elif score >= 40 %}Good, but there's room for improvement.{% else %}Needs significant improvement.{% endif %}
+            </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+            <!-- Found Skills -->
+            <div class="card animate-up delay-1">
+                <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-check-circle" style="color: #4ade80; margin-right: 0.5rem;"></i>Skills Found</h3>
+                {% if found_skills %}
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    {% for skill in found_skills %}
+                    <span style="background: hsla(140, 70%, 45%, 0.15); color: #4ade80; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem;">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p style="color: var(--text-secondary);">No recognized skills found.</p>
+                {% endif %}
+            </div>
+
+            <!-- Missing Skills -->
+            <div class="card animate-up delay-2">
+                <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-exclamation-triangle" style="color: #fbbf24; margin-right: 0.5rem;"></i>Missing Skills</h3>
+                {% if missing_skills %}
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    {% for skill in missing_skills %}
+                    <span style="background: hsla(40, 90%, 55%, 0.15); color: #fbbf24; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem;">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p style="color: var(--text-secondary);">All key skills are covered!</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Suggestions -->
+        <div class="card animate-up delay-3" style="margin-top: 2rem;">
+            <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-lightbulb" style="color: var(--primary); margin-right: 0.5rem;"></i>Resume Suggestions</h3>
+            {% for suggestion in suggestions %}
+            <div style="padding: 1rem; border-left: 3px solid var(--primary); margin-bottom: 1rem; background: rgba(255,255,255,0.02); border-radius: 0 8px 8px 0;">
+                <p style="margin: 0; color: var(--text-primary);">{{ suggestion }}</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Next Step -->
+        <div style="text-align: center; margin-top: 3rem;" class="animate-up">
+            <button id="continue-to-interview" class="btn btn-primary">Continue to Interview <i class="fas fa-arrow-right"></i></button>
+            <a href="{% url 'upload' %}" class="btn btn-outline" style="margin-left: 1rem;">Upload New Resume</a>
+        </div>
+
+        <div id="media-status" style="text-align: center; margin-top: 1rem; color: var(--text-secondary);"></div>
+
+        <div id="media-window" style="display: none; border: 1px solid rgba(255,255,255,0.2); padding: 1rem; margin-top: 1.5rem; border-radius: 8px; background: rgba(0,0,0,0.08); max-width: 420px; margin-left: auto; margin-right: auto;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+                <span style="font-weight: 700;">Live Media Preview</span>
+                <span id="media-status-badge" style="font-size: 0.85rem; padding: 0.2rem 0.6rem; border-radius: 999px; background: #60a5fa; color: white;">Camera ON · Mic ON</span>
+            </div>
+            <video id="media-preview" width="100%" height="auto" autoplay playsinline muted style="border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); background: black;"></video>
+            <div style="margin-top: 0.6rem; font-size: 0.9rem; color: #d1d5db;">Your webcam preview is on. This is a local check only; no recording is stored.</div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const continueButton = document.getElementById('continue-to-interview');
+        const status = document.getElementById('media-status');
+        const interviewUrl = '{% url "interview" %}';
+
+        continueButton.addEventListener('click', async function (event) {
+            event.preventDefault();
+            status.textContent = 'Requesting microphone and camera access...';
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                status.textContent = 'Your browser does not support media device access. Proceeding to interview without mic/camera.';
+                window.location.href = interviewUrl;
+                return;
+            }
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+                status.textContent = 'Microphone and camera access granted. Showing preview then redirecting...';
+
+                const mediaWindow = document.getElementById('media-window');
+                const mediaStatusBadge = document.getElementById('media-status-badge');
+                const mediaPreview = document.getElementById('media-preview');
+
+                mediaStatusBadge.textContent = 'Camera ON · Mic ON';
+                mediaStatusBadge.style.background = '#22c55e';
+                mediaPreview.srcObject = stream;
+                mediaWindow.style.display = 'block';
+
+                setTimeout(() => {
+                    stream.getTracks().forEach(t => t.stop());
+                    window.location.href = interviewUrl;
+                }, 1500);
+            } catch (err) {
+                console.error('Media access denied or unavailable:', err);
+                status.textContent = 'Mic/camera access denied or unavailable. You can still continue to interview without live video/audio.';
+                const mediaWindow = document.getElementById('media-window');
+                const mediaState = document.getElementById('media-status-badge');
+                mediaWindow.style.display = 'block';
+                mediaState.textContent = 'Camera OFF · Mic OFF';
+                mediaState.style.background = '#f87171';
+                setTimeout(() => {
+                    window.location.href = interviewUrl;
+                }, 1500);
+            }
+        });
+    });
+</script>
+{% endblock %}

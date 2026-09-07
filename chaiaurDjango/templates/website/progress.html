@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Progress - AI Mock Interview{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container" style="max-width: 900px;">
+        <div class="animate-up" style="text-align: center; margin-bottom: 3rem;">
+            <h1>Your <span style="color: var(--primary);">Progress</span></h1>
+            <p>Track your improvement over time.</p>
+        </div>
+
+        <!-- Stats Overview -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 3rem;">
+            <div class="card animate-up delay-1" style="text-align: center;">
+                <p style="margin: 0 0 0.3rem; font-size: 0.85rem; color: var(--text-secondary);">Total Sessions</p>
+                <h2 style="margin: 0; font-size: 2rem;">{{ total_sessions }}</h2>
+            </div>
+            <div class="card animate-up delay-2" style="text-align: center;">
+                <p style="margin: 0 0 0.3rem; font-size: 0.85rem; color: var(--text-secondary);">Average Score</p>
+                <h2 style="margin: 0; font-size: 2rem; color: var(--secondary);">{{ avg_score }}<span style="font-size: 0.9rem; color: var(--text-secondary);">/150</span></h2>
+            </div>
+            <div class="card animate-up delay-3" style="text-align: center;">
+                <p style="margin: 0 0 0.3rem; font-size: 0.85rem; color: var(--text-secondary);">Best Score</p>
+                <h2 style="margin: 0; font-size: 2rem; color: #4ade80;">{{ best_score }}<span style="font-size: 0.9rem; color: var(--text-secondary);">/150</span></h2>
+            </div>
+        </div>
+
+        {% if results %}
+        <!-- Results Table -->
+        <div class="card animate-up" style="padding: 0; overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
+                <thead>
+                    <tr style="text-align: left; border-bottom: 1px solid var(--glass-border);">
+                        <th style="padding: 1.2rem;">#</th>
+                        <th style="padding: 1.2rem;">Date</th>
+                        <th style="padding: 1.2rem;">Role</th>
+                        <th style="padding: 1.2rem;">Resume</th>
+                        <th style="padding: 1.2rem;">Interview</th>
+                        <th style="padding: 1.2rem;">Total</th>
+                        <th style="padding: 1.2rem;">Performance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in results %}
+                    <tr style="border-bottom: 1px solid var(--glass-border);">
+                        <td style="padding: 1.2rem; color: var(--text-secondary);">{{ forloop.counter }}</td>
+                        <td style="padding: 1.2rem; color: var(--text-secondary);">{{ r.created_at|date:"M d, Y" }}</td>
+                        <td style="padding: 1.2rem;">{% if r.interview %}{{ r.interview.job_role }}{% else %}—{% endif %}</td>
+                        <td style="padding: 1.2rem;">
+                            <span style="color: {% if r.resume_score >= 70 %}#4ade80{% elif r.resume_score >= 40 %}#fbbf24{% else %}#f87171{% endif %};">{{ r.resume_score }}/100</span>
+                        </td>
+                        <td style="padding: 1.2rem;">
+                            <span style="color: {% if r.interview_score >= 35 %}#4ade80{% elif r.interview_score >= 20 %}#fbbf24{% else %}#f87171{% endif %};">{{ r.interview_score }}/50</span>
+                        </td>
+                        <td style="padding: 1.2rem; font-weight: 600;">{{ r.total_score }}/150</td>
+                        <td style="padding: 1.2rem;">
+                            <div style="width: 80px; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                                <div style="height: 100%; width: {% widthratio r.total_score 150 100 %}%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 4px;"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="card" style="text-align: center; padding: 4rem 2rem;">
+            <i class="fas fa-chart-line" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 1.5rem;"></i>
+            <h3>No Sessions Yet</h3>
+            <p>Complete your first interview session to start tracking progress.</p>
+            <a href="{% url 'upload' %}" class="btn btn-primary" style="margin-top: 1rem;">Start Now <i class="fas fa-arrow-right"></i></a>
+        </div>
+        {% endif %}
+
+        <div style="text-align: center; margin-top: 3rem;" class="animate-up">
+            <a href="{% url 'upload' %}" class="btn btn-primary">New Session <i class="fas fa-plus"></i></a>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline" style="margin-left: 1rem;">Dashboard</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

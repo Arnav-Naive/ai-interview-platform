@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Select Role - AI Mock Interview{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container" style="max-width: 900px;">
+        <div class="animate-up" style="text-align: center; margin-bottom: 3rem;">
+            <h1>Select Your <span style="color: var(--primary);">Target Role</span></h1>
+            <p>Choose the job role you want to practice for. We'll generate domain-specific interview questions.</p>
+        </div>
+
+        <div class="dashboard-grid">
+            {% for role in roles %}
+            <form method="POST" style="margin: 0;">
+                {% csrf_token %}
+                <input type="hidden" name="role" value="{{ role }}">
+                <button type="submit" class="card animate-up delay-{{ forloop.counter }}" style="cursor: pointer; width: 100%; text-align: left; background: var(--bg-card); border: 1px solid var(--glass-border); color: inherit;">
+                    <div style="display: flex; align-items: center; gap: 1.5rem;">
+                        <div style="width: 55px; height: 55px; border-radius: 14px; background: {% cycle 'var(--primary-glow)' 'hsla(190,85%,55%,0.15)' 'hsla(320,80%,60%,0.15)' 'hsla(140,70%,45%,0.15)' 'hsla(40,90%,55%,0.15)' %}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="fas {% cycle 'fa-python' 'fa-globe' 'fa-chart-pie' 'fa-coffee' 'fa-layer-group' %}" style="font-size: 1.3rem; color: {% cycle 'var(--primary)' 'var(--secondary)' 'var(--accent)' '#4ade80' '#fbbf24' %};"></i>
+                        </div>
+                        <div>
+                            <h3 style="margin: 0 0 0.3rem;">{{ role }}</h3>
+                            <p style="margin: 0; font-size: 0.85rem;">5 curated interview questions</p>
+                        </div>
+                        <i class="fas fa-chevron-right" style="margin-left: auto; color: var(--text-secondary);"></i>
+                    </div>
+                </button>
+            </form>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

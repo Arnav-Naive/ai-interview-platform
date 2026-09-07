@@ -1,0 +1,106 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI Mock Interview System{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="{% url 'home' %}" class="logo">AI Interview</a>
+
+            <div class="nav-links">
+                <a href="{% url 'home' %}" class="{% if request.path == '/' %}active{% endif %}">Home</a>
+                <a href="{% url 'about' %}" class="{% if '/about/' in request.path %}active{% endif %}">About</a>
+                <a href="{% url 'contact' %}" class="{% if '/contact/' in request.path %}active{% endif %}">Contact</a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="{% if '/dashboard/' in request.path %}active{% endif %}">Dashboard</a>
+                    <a href="{% url 'upload' %}" class="{% if '/upload/' in request.path or '/analysis/' in request.path %}active{% endif %}">Resume</a>
+                    <a href="{% url 'role' %}" class="{% if '/role/' in request.path or '/interview/' in request.path %}active{% endif %}">Interview</a>
+                    <a href="{% url 'progress' %}" class="{% if '/progress/' in request.path %}active{% endif %}">Progress</a>
+                    <a href="{% url 'logout' %}" class="btn btn-outline">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Login</a>
+                    <a href="{% url 'register' %}" class="btn btn-primary">Get Started</a>
+                {% endif %}
+            </div>
+
+            <button class="mobile-menu-btn" onclick="document.querySelector('.nav-links').classList.toggle('show')">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Django Messages Toast -->
+    {% if messages %}
+    <div class="messages-container" id="messages-box">
+        {% for message in messages %}
+        <div class="msg msg-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}">
+            <i class="fas {% if 'success' in message.tags %}fa-check-circle{% elif 'error' in message.tags %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}" style="margin-right: 0.5rem;"></i>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <a href="{% url 'home' %}" class="footer-logo logo">AI Interview</a>
+            <div class="footer-links">
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'about' %}">About</a>
+                <a href="{% url 'contact' %}">Contact</a>
+                {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}">Dashboard</a>
+                {% endif %}
+            </div>
+            <p class="copyright">&copy; 2026 AI Mock Interview System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Intersection Observer for fade-in animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.animate-up').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+
+        // Auto-dismiss messages after 4 seconds
+        const msgBox = document.getElementById('messages-box');
+        if (msgBox) {
+            setTimeout(function() {
+                msgBox.style.transition = 'opacity 0.5s ease';
+                msgBox.style.opacity = '0';
+                setTimeout(function() { msgBox.remove(); }, 500);
+            }, 4000);
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+

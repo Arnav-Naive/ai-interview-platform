@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Upload Resume - AI Mock Interview{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container" style="max-width: 700px;">
+        <div class="animate-up" style="text-align: center; margin-bottom: 3rem;">
+            <h1>Upload Your <span style="color: var(--primary);">Resume</span></h1>
+            <p>Upload your resume to receive a role-specific resume matching report (rule-based scoring).</p>
+            {% if role %}
+            <p style="font-weight: 600; color: var(--secondary);">Selected role: {{ role }}</p>
+            {% endif %}
+        </div>
+
+        {% if error %}
+        <div class="card animate-up" style="border-left: 4px solid #f87171; margin-bottom: 2rem; padding: 1.2rem;">
+            <p style="margin: 0; color: #f87171;"><i class="fas fa-exclamation-circle"></i> {{ error }}</p>
+        </div>
+        {% endif %}
+
+        <div class="card animate-up" style="position: relative; z-index: 1;">
+            <form method="POST" enctype="multipart/form-data" id="upload-form">
+                {% csrf_token %}
+                <div style="border: 2px dashed var(--glass-border); padding: 3rem; text-align: center; border-radius: var(--radius-md); transition: 0.3s; cursor: pointer; position: relative; z-index: 2;" id="drop-zone" onclick="document.getElementById('resume-input').click();">
+                    <input type="file" name="resume" id="resume-input" style="display: none;" accept=".txt,.pdf,.doc,.docx" onchange="handleFileSelect(this)">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 1rem; display: block;" id="upload-icon"></i>
+                    <span id="file-label" style="color: var(--text-primary); font-weight: 500;">Click here to select your resume</span>
+                    <p style="font-size: 0.8rem; margin-top: 0.5rem;" id="file-hint">Supports .txt files (PDF/DOCX will use simulated content)</p>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 2rem; position: relative; z-index: 2;" id="submit-btn">
+                    Analyze Resume <i class="fas fa-magic"></i>
+                </button>
+            </form>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;" class="animate-up">
+            <p style="font-size: 0.85rem;"><i class="fas fa-info-circle" style="color: var(--secondary);"></i> After upload, you'll be redirected to your analysis results.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function handleFileSelect(input) {
+    if (input.files && input.files[0]) {
+        var fileName = input.files[0].name;
+        document.getElementById('file-label').textContent = fileName;
+        document.getElementById('file-hint').textContent = 'File selected! Click "Analyze Resume" to continue.';
+        document.getElementById('file-hint').style.color = '#4ade80';
+        document.getElementById('drop-zone').style.borderColor = 'var(--primary)';
+        document.getElementById('upload-icon').className = 'fas fa-check-circle';
+        document.getElementById('upload-icon').style.color = '#4ade80';
+    }
+}
+
+// Prevent double submit
+document.getElementById('upload-form').addEventListener('submit', function(e) {
+    var fileInput = document.getElementById('resume-input');
+    if (!fileInput.files || fileInput.files.length === 0) {
+        e.preventDefault();
+        document.getElementById('file-label').textContent = 'Please select a file first!';
+        document.getElementById('file-label').style.color = '#f87171';
+        document.getElementById('drop-zone').style.borderColor = '#f87171';
+        return false;
+    }
+    var btn = document.getElementById('submit-btn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+    btn.disabled = true;
+});
+</script>
+{% endblock %}

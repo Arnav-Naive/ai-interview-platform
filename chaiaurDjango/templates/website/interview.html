@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block title %}Interview - {{ role }} - AI Mock Interview{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container" style="max-width: 900px;">
+        <div class="animate-up" style="text-align: center; margin-bottom: 2rem;">
+            <div style="display: inline-block; padding: 0.4rem 1.2rem; border-radius: 20px; background: var(--primary-glow); color: var(--primary); font-size: 0.85rem; font-weight: 600; margin-bottom: 1rem;">{{ role }}</div>
+            <h1>Mock <span style="color: var(--primary);">Interview</span></h1>
+            <p>Answer each question thoughtfully. Our AI is monitoring your session.</p>
+        </div>
+
+        <div class="card animate-up" style="margin-bottom: 2.5rem; padding: 1.5rem;">
+            <h3 style="margin: 0 0 1rem;">Interview Instructions</h3>
+            <p style="margin: 0; color: var(--text-secondary);">You are now answering questions for the <strong>{{ role }}</strong> role. This is a local rule-based evaluation system, no external AI services are used.</p>
+        </div>
+
+        <div class="card animate-up" style="margin-bottom: 1.8rem; padding: 1.5rem;">
+            <h3 style="margin: 0 0 1rem;">Camera & Mic Preview</h3>
+            <p style="margin: 0 0 0.7rem; color: var(--text-secondary);">Keep this live preview panel open while answering questions.</p>
+            <div style="display: flex; gap: 1rem; align-items: flex-start; flex-wrap: wrap;">
+                <div style="width: 320px;"> 
+                    <video id="media-preview" autoplay playsinline muted style="width:100%; border-radius: 10px; background: #111;"></video>
+                </div>
+                <div style="flex:1; min-width:220px;">
+                    <div id="media-status" style="background: var(--bg-secondary); padding: 0.75rem; border-radius: 8px; color: var(--text-secondary); margin-bottom: 0.8rem;">Requesting camera/microphone permission...</div>
+                    <button type="button" id="media-button" class="btn btn-outline-primary" style="margin-right:0.6rem;">Start Camera/Mic</button>
+                    <button type="button" id="media-stop-button" class="btn btn-outline-danger">Stop Camera/Mic</button>
+                </div>
+            </div>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="card animate-up" style="margin-bottom: 2rem;">
+                <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                    <div style="width: 40px; height: 40px; border-radius: 10px; background: var(--primary-glow); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700; color: var(--primary);">
+                        {{ question_number }}
+                    </div>
+                    <div style="flex: 1;">
+                        <h3 style="margin-bottom: 1rem; font-size: 1.05rem;">{{ question }}</h3>
+                        <textarea name="answer" class="form-control" rows="6" placeholder="Type your answer here..." style="resize: vertical;">{{ current_answer }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 2rem;" class="animate-up">
+                <button type="submit" class="btn btn-primary" style="padding: 1rem 3rem; font-size: 1.1rem;">
+                    {% if is_last %}
+                        Submit Interview <i class="fas fa-paper-plane"></i>
+                    {% else %}
+                        Next Question <i class="fas fa-arrow-right"></i>
+                    {% endif %}
+                </button>
+                <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
+                    <i class="fas fa-clock"></i> Take your time. Quality answers score higher.
+                </p>
+                <div style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);">
+                    Question {{ question_number }} of {{ total_questions }}
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let mediaStream = null;
+    const mediaPreview = document.getElementById('media-preview');
+    const mediaStatus = document.getElementById('media-status');
+    const mediaButton = document.getElementById('media-button');
+    const mediaStopButton = document.getElementById('media-stop-button');
+
+    function setMediaStatus(text, isActive) {
+        mediaStatus.textContent = text;
+        mediaStatus.style.color = isActive ? 'var(--primary)' : 'var(--text-secondary)';
+        if (isActive) {
+            mediaStatus.style.background = 'rgba(76, 175, 80, 0.1)';
+        } else {
+            mediaStatus.style.background = 'rgba(255, 0, 0, 0.08)';
+        }
+    }
+
+    async function startMedia() {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            setMediaStatus('Media devices not supported in this browser.', false);
+            return;
+        }
+
+        try {
+            mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+            mediaPreview.srcObject = mediaStream;
+            setMediaStatus('Live: Camera ON · Mic ON', true);
+        } catch (error) {
+            setMediaStatus('Permission denied or unavailable; camera/mic are not active.', false);
+            mediaPreview.srcObject = null;
+            mediaStream = null;
+        }
+    }
+
+    function stopMedia() {
+        if (mediaStream) {
+            mediaStream.getTracks().forEach(track => track.stop());
+            mediaStream = null;
+            mediaPreview.srcObject = null;
+            setMediaStatus('Camera OFF · Mic OFF', false);
+        }
+    }
+
+    mediaButton.addEventListener('click', startMedia);
+    mediaStopButton.addEventListener('click', stopMedia);
+
+    document.addEventListener('DOMContentLoaded', () => {
+        startMedia();
+        const interviewForm = document.querySelector('form');
+        interviewForm.addEventListener('submit', () => {
+            stopMedia();
+        });
+    });
+</script>
+{% endblock %}
